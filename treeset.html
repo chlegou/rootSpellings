@@ -1,0 +1,93 @@
+<html>
+<head>
+    <script>
+
+// https://codereview.stackexchange.com/a/179147
+function scramble(string1, string2) {
+  return string2.split('').every(function(character) {
+    // Every string2 characters must be included in the string1
+    return string1.includes(character);
+  });
+}
+
+function rootSpellingsFromArray(data) {
+    // 
+    regex = /[^a-zA-Z]+/g; // change regex by any one you want. current regex will observe only letters, ignoring numbers and special chars!!
+    dataWrapped = data.map( (str, pos, ary) => {
+            uniqueChars = str
+                        .replace(regex, '') // take only letters
+                        .toLowerCase() // convert to lower case
+                        .split('').sort().filter((char, pos, ary) => !pos || char != ary[pos - 1] ).join(''); // sort | uniq letters
+            return {
+                uniqueChars: uniqueChars,
+                wordLength: uniqueChars.length,
+                original: str
+            }
+        }).sort((a, b) => ( a.wordLength > b.wordLength ? - 1 : ( a.wordLength < b.wordLength ? 1 : 0 ) ))  // sort them by original word length;
+
+
+
+        console.log ( dataWrapped);
+        
+
+
+
+        rootSpellings = dataWrapped.reduce((unique, o) => {
+            if(!unique.some(obj =>  scramble(obj.uniqueChars, o.uniqueChars) )) {
+                unique.push(o);
+            }
+            return unique;
+        },[]) // take only unique wraps
+        .map( el => el.original); // render only original words
+
+        console.log ( rootSpellings);
+
+        return rootSpellings;
+}
+
+
+
+
+
+        window.addEventListener('load', function() {
+            var inputBox = document.getElementById('inputBox');
+            var outputBox = document.getElementById('outputBox');
+            var btnGenerate = document.getElementById('btnGenerate');
+
+            btnGenerate.addEventListener('click', function() {
+                input = inputBox.value.split('\n');
+                output = rootSpellingsFromArray(input);
+
+                outputBox.value = output.join('\n');
+            });
+        });
+
+
+    
+    </script>
+    
+</head>
+<body>
+    <div>
+        <textarea  id="inputBox" cols="70" rows="20"></textarea>
+    </div>
+    <div style="margin-top:20px;">
+        <br/>
+        <p>
+            you could select any wrapping regex to handle root spellings:
+            <br/>
+            e.g.: <b>/[^a-zA-Z]+/g</b> : will make use of letters only, ignoring any sperial caracters and numbers.
+            <h4>NOTE: **this regex is used in current demo. change it by any regex you want.</h4>
+        </p>
+
+
+        <br/>
+        <button id="btnGenerate">Root Spelling</button>
+    </div>
+    <div style="margin-top:20px;">
+        <textarea id="outputBox" cols="70" rows=20"></textarea>
+    </div>
+</body>
+
+
+</html>
